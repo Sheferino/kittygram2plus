@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 
 class CatsPagination(pagination.PageNumberPagination):
-    page_size = 20
+    page_size = 2
 
     def get_paginated_response(self, data):
         return Response(OrderedDict([
