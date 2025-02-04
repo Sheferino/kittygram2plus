@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions, throttling, pagination
+from rest_framework import viewsets, permissions, throttling, pagination, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Achievement, Cat, User
 from .permissions import OwnerOrReadOnly, ReadOnly
@@ -16,7 +17,12 @@ class CatViewSet(viewsets.ModelViewSet):
     # его лимит прописан в settings
     throttle_classes = (throttling.AnonRateThrottle,)
     # кастомный пагинатор. У остальных дефолтный из settings
-    pagination_class = CatsPagination
+    # временно отключен для настройки фильтрации
+    pagination_class = None  # CatsPagination
+    # подключаем фильтрацию
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_fields = ('color', 'birth_year')
+    search_fields = ('name', 'achievements__name')
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -44,6 +50,6 @@ class AchievementViewSet(viewsets.ModelViewSet):
     # Подключили кастомный класс ограничителя,
     # его лимит прописан в settings
     throttle_classes = (throttling.ScopedRateThrottle,
-                        # WorkingHouseRateThrottle
+                        WorkingHouseRateThrottle
                         )
     throttle_scope = 'low_request'
